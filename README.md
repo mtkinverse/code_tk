@@ -1,0 +1,6 @@
+- 👋 My self Taha.
+- 👀 I have started coding recently. 
+- 🌱 I’m a student at NUCES karachi.
+- 💞️ Exploring the world of programming.
+- Desired to be speed programmer.
+- 📫 mtkinverse@gmail.com
