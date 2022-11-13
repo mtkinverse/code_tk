@@ -11,6 +11,7 @@ void printhardscreen();
 void printeasyscreen();
 void easylevel();
 void hardlevel();
+void multiplayer();
 void resetgame();
 void rategame();
 void setscore_easy(int);
@@ -18,7 +19,7 @@ void setscore_hard(int);
 void setscore_mtp(int);
 int control1a(); 
 int control1b();  
-int controlmtp(char name1,char name2);  
+void controlmtp(char name1[],char name2[]);  
 
 
 typedef struct info{
@@ -46,13 +47,13 @@ void main(){
     switch(st){
         case 1:
 
-        printf("Single player or multiplayer ?\n0-single player\n1-Multiplayer\nEnter your choice (0,1) : ");
+        printf("\n\nSingle player or multiplayer ?\n0-single player\n1-Multiplayer\nEnter your choice (0,1) : ");
         scanf("%d",&lev);
         
         switch(lev){
         
         case 0:
-        printf("select level\n1- Easy\n2- Hard\n");
+        printf("\n\nselect level\n1- Easy\n2- Hard\n");
         scanf("%d",&lev);
         
         switch(lev){
@@ -96,7 +97,8 @@ void main(){
 }
 
 void instruct(int players,int level){
-    switch(player){
+    system("cls");
+    switch(players){
         case 1:
         printf("--> Note that :\n-It will be a player and computer compitition\n");
         switch(level){
@@ -109,7 +111,7 @@ void instruct(int players,int level){
         }printf("-Each touch of pad scores for 5\n-PRESS ""a"" to move in the left direction, and ""d"" to move in the right direction\n");
         break;
         case 2:
-        printf("--> Note that :\n-It will be 2 players game\n-Player 1 can handle the pad with ""w"" and ""s"" while player 2 can handle the pad with ""8"" and ""2""\n-Each touch of pad scores for 5\n");
+        printf("--> Note that :\n-It will be 2 players game\n-Player 1 can handle the pad with ""a"" and ""d"" while player 2 can handle the pad with ""4"" and ""6""\n-Each touch of pad scores for touch\n");
         break;
     }
     printf("______press any key to begin______\n");
@@ -203,22 +205,23 @@ main();
 
 void multiplayer(){
 
-char name1[20],char name2[20];
+char name1[20],name2[20];
 
 instruct(2,1);
 getch();
 
 system("cls");
 printf("Give the name of the player 1 : ");
+scanf("\n");
 gets(name1);
 printf("Give the name of the player 2 : ");
 gets(name2);
 
-int score=controlmtp(name1,name2);
+controlmtp(name1,name2);
+system("cls");
+printf("\n\n\n\n\n\t\t\t\tThe game is over\n\n"); 
 
-printf("\t\t\t\tThe game is over\n\t\t\t\tYour score : %d\n",score); 
-
-setscore_mtp(score);
+// setscore_mtp(score);
 printf("Press any key exit\n");
 
 getch();
@@ -528,6 +531,11 @@ printf("          ##############################################################
         c=0;
         }
 
+     if(padx<=10)
+          padx=10;
+    if(padx>=70)
+          padx=70;
+
     gotoxy(padx,20);printf("_____\n");
     
     if(j==20){
@@ -548,10 +556,6 @@ printf("          ##############################################################
     else 
      j++;
      
-     if(padx<=10)
-          padx=10;
-    if(padx>=70)
-          padx=70;
      
      if(j==25){
         system("cls");
@@ -576,39 +580,124 @@ printf("          ##############################################################
 }
 }
 
-int controlmtp(char name1[],char name2[]){
+void controlmtp(char name1[],char name2[]){
 
-int score1=0,score2=0,i=30,j=9,p1x=15,p1y=9,p2x,50,p2y=9;
+int score1=0,score2=0,i=30,j=9,p1x=13,p1y=18,p2x=83,p2y=5,count=0,decidei,check;
+char c;
+
+while(1){
+
 system("color");
 system("cls");
 
-printf("     #############################################################\n");
-printf("     #                                                          #\n");
-printf("     #                                                          #\n");
-printf("     #                                                          #\n");
-printf("     #                                                          #\n");
-printf("     #                                                          #\n");
-printf("     #                                                          #\n");
-printf("     #                                                          #\n");
-printf("     #                                                          #\n");
-printf("     #                                                          #\n");
-printf("     #                                                          #\n");
-printf("     #                                                          #\n");
-printf("     #                                                          #\n");
-printf("     #                                                          #\n");
-printf("     #                                                          #\n");
-printf("     #                                                          #\n");
-printf("     #                                                          #\n");
-printf("     #############################################################\n");
-printf("      Player 1 :                     Player 2:                        ");
-printf("      %s                             %s                ",name1,name2);
-printf("      %d                             %d                ",score1,score2);
+printf("            ########################################################################\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #----------------------------------------------------------------------#\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #----------------------------------------------------------------------#\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            #                                                                      #\n");
+printf("            ########################################################################\n");
+printf("                    Player 1 :                                         Player 2:                        \n");
+printf("                    %s                                                 %s                \n",name1,name2);
+printf("                    %d                                                 %d                \n",score1,score2);
 
 gotoxy(i,j);
 printf("*");
 
+while(kbhit()&&(c=getch())){
+
+ switch(c){
+   
+    case 'a':p1x--;break;
+    case 'd':p1x++;break;
+    case '4':p2x--;break;              
+    case '6':p2x++;break;
+    case '0':return;              
+
+   }
+}
+
+if(p1x<=13)p1x=13;
+else if(p1x>=83)p1x=83;
+
+if(p2x<=13)p2x=13;
+else if(p2x>=78)p2x=78;
+
 gotoxy(p1x,p1y);
-printf("|\n");
-printf("|\n");//will continue this function
+printf("_____\n");
+
+gotoxy(p2x,p2y);
+printf("_____\n");
+
+
+if(j==p1y){
+    check=i-p1x;
+    if(check>=0&&check<=4){
+        decidei=check-2;
+        score1++;
+        count=1;
+    }
+}
+
+if(j==p2y){
+    check=i-p2x;
+    if((check>=0)&&(check<=4)){
+        decidei=check-2;
+        score2++;
+        count=0;
+    }
+}
+
+// if(j>=17)count=1;
+// else if (j<=1)count=0;
+if(count)j--;
+else j++;
+
+if(j==22){
+    system("cls");
+    printf("Player 1 let the ball go !\n");
+    sleep(3);
+    j=12;
+    count=0;
+}
+
+if(j==1){
+    system("cls");
+    printf("Player 2 let the ball go !\n");
+    sleep(3);
+    j=12;
+    count=1;
+}
+
+
+if(i<=14||i>=82)
+   decidei*=-1;
+
+i+=decidei;
+
+system("color");
+system("color");
+system("color");
+system("color");
+system("color");
+
+}
 
 }
