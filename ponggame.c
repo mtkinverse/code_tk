@@ -5,12 +5,20 @@
 #include<string.h>
 #include<unistd.h>
 #include<time.h>
-
 typedef struct info{
     char name[50];
     char date[12];
     int score;
 } info;
+
+
+struct log_info{
+   char name[20],pass[20],uname[20];
+   int lev;
+}a,b;
+
+char checker[20];
+int check;
 
 void gotoxy(int x,int y){
     COORD CRD;
@@ -36,21 +44,35 @@ int control1a();
 int control1b();  
 void controlmtp(char name1[],char name2[]);
 int check_time();
-// void multiballs(int,int,int,int);
-void block_buster();  
+void block_buster(struct log_info *);  
 int level(int );
 float** generate_blocks(int,int*);
+void encrypt_pass(char*);
+int login(struct log_info*);
+int check_uname(char*,int*);
+void update_record(struct log_info *);
+void delete_rec(struct log_info*);
+static int di=0;
+
+
 
 
 void main(){
+    
+    struct log_info *user = (struct log_info*)malloc(sizeof(struct log_info));
+     system("cls");
+     while(!login(user));
+   
+    int st,lev,hscores;
+    
 
     system("cls");
-    
-    int st,lev,hscores;
-    printf("\n\n                          WELCOME TO THe PONG GAME");
-    printf("\n\n1) Start\n2) View High scores\n3) Reset\n4) Quite\n5)To rate our game\n6) switch Block Buster\n\nEnter your choice (1,2,3,4,5) : ");
+
+	printf("\n\n-> Welcome %s \n\n",user->uname);
+    printf("\n\n1) Start\n2) View High scores\n3) Reset\n4) Quite\n5)To rate our game\n6) switch Block Buster\n7) To Delete Your account\n\nEnter your choice (1,2,3,4,5) : ");
     scanf("%d",&st);
 
+while(1){
     switch(st){
         case 1:
 
@@ -91,8 +113,11 @@ void main(){
         break;
         
         case 4:
+
         printf("You have exit the game\n\n------------------THANKS--------------------\n\n");
+        free(user);
         exit(1);
+
         break;
         
         case 5:
@@ -100,10 +125,16 @@ void main(){
         break;
         
         case 6:
-        block_buster();
+        block_buster(user);
         break;
-        default:printf("Invalid Entry\n");return;
+
+        case 7:delete_rec(user); break;
+
+
+        default:printf("Invalid Entry\n");
+        return;
     }
+}
 }
 
 void instruct(int players,int level){
@@ -125,11 +156,14 @@ void instruct(int players,int level){
         break;
     }
     printf("______press any key to begin______\n");
-}
+    }
+
+
+
 
 void  highscores(){
     
-    int hscores,i=0;
+    int x,hscores,i=0;
     struct info *_score;
 
 
@@ -149,7 +183,7 @@ void  highscores(){
 }
 
             system("cls");
-for(int x=0;x<5;x++)
+for(x=0;x<5;x++)
     printf("%d-> %s score on %s :%d\n",x+1,_score[x].name,_score[x].date,_score[x].score);
     free(_score);
             printf("\n\nPress any key to return to main menu\n");
@@ -302,21 +336,22 @@ void resetgame(){
     FILE *easy;
     FILE *hard;
     FILE *ratin;
+    int x,i;
     
     hard=fopen("highscores_hard.txt","w");
-    for(int x=0;x<5;x++)
+    for(x=0;x<5;x++)
     fprintf(hard,"noname nodate 0\n");
 
     fclose(hard);
 
     easy=fopen("highscores_easy.txt","w");
 
-    for(int x=0;x<5;x++)
+    for(x=0;x<5;x++)
     fprintf(easy,"noname nodate 0\n");
     fclose(easy);
 
     ratin=fopen("rating.txt","w");
-    for(int i=1;i<5;i++)fprintf(ratin,"0\n");
+    for(i=1;i<5;i++)fprintf(ratin,"0\n");
     
     printf("The game have been reset\nPress any key to return to main menu\n");
     getch();
@@ -329,6 +364,7 @@ void rategame(){
 
     char r,check[10];
     int rate[6]={0};
+    int j,i;
     
     FILE *ratin;
     ratin=fopen("rating.txt","r");
@@ -342,9 +378,9 @@ fclose(ratin);
 
     system("cls");
     printf("Current rating :\n");
-    for(int j=1;j<=5;j++){
+    for(j=1;j<=5;j++){
             printf("%d star reading : ",j);
-        for(int i=1;i<=rate[j];i++){
+        for(i=1;i<=rate[j];i++){
             printf("* ");
         }
         printf("\n");
@@ -363,7 +399,7 @@ FILE *nratin;
 nratin=fopen("rating.txt","w");
 
 
-for(int i=1;i<=5;i++){
+for(i=1;i<=5;i++){
     fprintf(nratin,"%d\n",rate[i]);
 }
 fclose(nratin);
@@ -376,14 +412,14 @@ main();
 
 void setscore_easy(int score){
     
-    int scor[5],i=0;
+    int scor[5],j,i=0;
 struct info *arr;
 arr=Readfile(0);
    
    for(i=0;i<5;i++){
     if(score>arr[i].score){
 
-        for(int j=4;j>i;j--){
+        for(j=4;j>i;j--){
             strcpy(arr[j].name,arr[j-1].name);
             strcpy(arr[j].date,arr[j-1].date);
             arr[j].score=arr[j-1].score;
@@ -410,14 +446,14 @@ for(i=0;i<5;i++)
 
 void setscore_hard(int score){    
     info *arr;
-    int scor[5],i=0;
+    int j,scor[5],i=0;
 
 arr=Readfile(1);
    
    for(i=0;i<5;i++){
     if(score>arr[i].score){
 
-        for(int j=4;j>i;j--){
+        for(j=4;j>i;j--){
             strcpy(arr[j].name,arr[j-1].name);
             strcpy(arr[j].date,arr[j-1].date);
             arr[j].score=arr[j-1].score;
@@ -488,6 +524,12 @@ printf("          ##############################################################
     while(kbhit()&&(c=getch())){
             if(c=='a')--padx;
         else if(c=='d') ++padx;
+        else if(c==27){
+            system("cls");
+            printf("\nYou have exited the game\n");
+            sleep(3);
+            return score;
+        }
         c=0;
         }
 
@@ -584,6 +626,10 @@ printf("          ##############################################################
     while(kbhit()&&(c=getch())){
             if(c=='a')--padx;
         else if(c=='d') ++padx;
+        else if(c==27){
+            puts("You have exit the game");
+            return score;
+        }
         c=0;
         }
 
@@ -830,9 +876,9 @@ return;
 }
 
 if(lev>2){
- int sums1=0,sums2=0;
+ int i,sums1=0,sums2=0;
 
-    for(int i=0;i<n;i++){
+    for(i=0;i<n;i++){
         sums1+=score[i][0];
         sums2+=score[i][1];
     }
@@ -852,24 +898,21 @@ if(lev>2){
 }
 
 
-void block_buster(){
+void block_buster(struct log_info *user){
 
-    int i;
-            FILE *last_lev=fopen("level.txt","r");
-            fscanf(last_lev,"%d",&i);
-            printf("%d\n",i);sleep(1);
+    int i=user->lev;
 
-    for( i;i<=3;i++){
+    for( i;i<=10;i++){
 
         if(level(i)){
             system("cls");
             printf("\t\t\t\t\tGame ended !\n\t\t\t\tpress any key to exit\n");
-            fclose(last_lev);
-            free(last_lev);
-        last_lev=fopen("level.txt","w");
-            fprintf(last_lev,"%d",i);
-            fclose(last_lev);
-            free(last_lev);
+
+            if(i!=user->lev){
+            user->lev=i;
+            update_record(user);
+            }
+
             getch();
              main();
              }
@@ -884,27 +927,24 @@ void block_buster(){
 
     }
 
-            fclose(last_lev);
-            free(last_lev);
-        last_lev=fopen("level.txt","w");
-            fprintf(last_lev,"%d",i-1);
-            fclose(last_lev);
-            free(last_lev);
+    
+    user->lev=i-1;
+    update_record(user);
+
     printf("\t\t\t\t\tCongratulations you have mastered the game !\n\t\t\t\tPress any key to exit\n");
     getch();
     main();
 }
 
 int level(int wave){
-    wave+=4;
-
+    
     float ax=4,decidei=0,counti=0,i=40,j=19,count=1,padx=36;
-    int life=5,rel_ball=1;
+    int x,z,life=5,rel_ball=1;
     char ch;
     int *towhere=(int*) malloc(sizeof(int));
     
 float **block = generate_blocks(wave,towhere);
-
+	wave+=4;
 
 while(1){
     
@@ -938,10 +978,10 @@ printf("          #                                                             
 printf("          ####################################################################\n");
 
 
-for(int x=0;x < (*towhere);x++){
+for(x=0;x < (*towhere);x++){
     if(block[x][0]==0)continue;
     gotoxy(block[x][0],block[x][1]);
-    printf("#");
+    printf("$");
 }
 
 
@@ -950,8 +990,8 @@ for(int x=0;x < (*towhere);x++){
     
     char c;
     while(kbhit()&&(c=getch())){
-            if(c=='a')--padx;
-        else if(c=='d') ++padx;
+            if(c=='a')padx--;
+        else if(c=='d') padx++;
         else if(c=='0')return 1;
         c=0;
         }
@@ -975,11 +1015,11 @@ rel_ball=0;
 
         }
      decidei=ax-2;
-     decidei*=0.125;
+     decidei*=.125;
     }
     if(j<=5){
   
-    for(int x=0;x<(*towhere);x++){
+    for(x=0;x<(*(towhere));x++){
 
      if(j<=block[x][1]){
 
@@ -987,11 +1027,11 @@ rel_ball=0;
             count=!count;
             block[x][0]=0;
         }
-        else if((i-1)==block[x][0]&& decidei<=-2){
+        else if((i-1)>=block[x][0]&& decidei<=-2){
             block[x][0]=0;
             decidei*=-1;
         }
-        else if((i+1)==block[x][0]&& decidei>=2){
+        else if((i+1)<=block[x][0]&& decidei>=2){
             block[x][0]=0;
             decidei*=-1;
         }
@@ -1005,9 +1045,9 @@ rel_ball=0;
     if(j>=25)count++;
     if(j<=0)count=0;
     
-    if(count)j-=0.125;
+    if(count)j-=.25;
     else 
-     j+=0.125;
+     j+=.25;
      
      
      if(j==25){
@@ -1024,7 +1064,7 @@ rel_ball=0;
 
      if(life<=0){
         free(block);
-        free(block);
+        free(towhere);
         fflush(stdin);
              return -1;
      }
@@ -1038,7 +1078,7 @@ rel_ball=0;
 
 float win=0;
 
-for(int z=0;z<(*towhere);z++){    
+for(z=0;z<(*towhere);z++){    
         win+=block[z][0];
     
 }
@@ -1051,16 +1091,18 @@ for(int z=0;z<(*towhere);z++){
 
 
 float** generate_blocks(int wave,int *towhere){
-
-    int n=0;
+	
+    int j,n=0,low,high,rep;
+    float i,inc;
+    rep = wave + 4;
+    n = 0;
+    low = 11;
+    high = 76;
+    inc = (11/wave)+1;
     float **block=(float**)malloc(sizeof(float*));
-
- switch(wave-4){
-
-  case 1:
-
-    for(int j=3;j<=wave;j++){
-    for(int i=20;i<=66;i+=4){
+    
+    for(j=1;j<=rep;j++){
+    for(i=low;i<=high;i+=inc){
     n++;
         block=(float **)realloc(block,n*sizeof(float*));
         block[n-1]=(float*)calloc(2,sizeof(float));
@@ -1069,14 +1111,20 @@ float** generate_blocks(int wave,int *towhere){
        block[n-1][1]=j;
      }
     }
-    *towhere=(((66-20)/4)*(wave-3));
+    *towhere=9+(10*(wave-1));
+
+ /*switch(wave){
+
+  case 1:
+
+    
 
 break;
 //---------------------------------------------------------
 case 2:
 
-    for(int j=3;j<=wave;j++){
-        for(int i=10;i<=76;i+=4){
+    for(j=1;j<=wave;j++){
+        for(i=10;i<=76;i+=4){
         n++;
 
             block=(float **)realloc(block,n*sizeof(float*));
@@ -1086,14 +1134,14 @@ case 2:
            block[n-1][1]=j;
         }
 }
-    *towhere=(((76-10)/4)*(wave-3));
+    *towhere=(((76-10)/4)*(wave));
 
 break;
 //_________________________________________________________________
 case 3:
 
-    for(int j=3;j<=wave;j++){
-        for(int i=10;i<=76;i+=2){
+    for(j=1;j<=wave;j++){
+        for(i=10;i<=76;i+=3){
         n++;
 
             block=(float **)realloc(block,n*sizeof(float*));
@@ -1103,11 +1151,296 @@ case 3:
            block[n-1][1]=j;
         }
 }
-    *towhere=(((76-10)/2)*(wave-3));
+    *towhere=(((76-10)/2)*(wave));
 
 break;
 //--------------------------------------------------------------------
-}
+}*/
     return block;
 
+}
+
+
+
+void encrypt_pass(char *arr){
+	int i,n = strlen(arr);
+  int mb=(n)/2;
+
+  for(i=(n+3);i>(mb+3);i--){
+     arr[i]=arr[i-4];
+  }
+
+  arr[mb]='0';
+  arr[mb+1]='t';
+  arr[mb+2]='k';
+  arr[mb+3]='0';
+  
+	n = strlen(arr);
+    switch(arr[0]){
+
+       case 'a':case 'A':  
+       case 'e':case 'E':  
+       case 'i':case 'I':  
+       case 'o':case 'O':  
+       case 'u':case 'U':  
+            for(i=(n+2)-1;i>1;i--){
+               arr[i]=arr[i-2];
+            }
+            arr[0]='V';
+            arr[1]='w';
+
+        break;
+
+        default : 
+
+            arr[n]='C';
+            arr[n+1]='n';
+            arr[n+2]='s';
+            arr[n+3]=0;
+
+        break;    
+    }
+}
+
+
+
+int login(struct log_info *user){
+
+    char c;
+    int cnt=0,pass_cnt=0;
+
+    system("cls");
+	printf("\n\n                          WELCOME TO THe PONG GAME\n");
+    printf("Sign up or login to enjoy the game \n0- Signup\n1- Login\n2- Play Demo\n3- Quite\n\n");
+
+    scanf("%d",&check);
+    
+    switch(check){
+
+case 0:
+	
+        fflush(stdin);
+    printf("Give the your name : ");
+    gets(a.name);
+    
+    printf("Give a unique user name with which you will login next time \n");
+    gets(a.uname);
+
+    while(check_uname(a.uname,&cnt)){
+    	printf("The user name is already present. please choose someother username\n");
+    	gets(a.uname);
+	}
+        do{
+        	fflush(stdin);
+            printf("give the password you want to create : ");
+            gets(checker);
+            printf("Renter the password for the sake of confirmation : ");
+			gets(a.pass);
+			
+            if(strcmp(checker,a.pass)==0)break;
+            else printf("please Enter the correct password try Again !\n");
+        }while(1);
+
+    encrypt_pass(a.pass);
+    a.lev=1;
+
+ FILE *fw=fopen("login_info.bin","ab");
+ if(fw==NULL){
+    puts("Error in opening the file");
+    exit(0);
+ }
+
+fwrite(&a,sizeof(struct log_info),1,fw);
+ fclose(fw);
+
+ return 0;
+
+break; 
+
+ 	case 1:
+
+ 		system("cls");
+ 		printf("Enter your unique user name: ");
+ 		fflush(stdin);
+ 		gets(a.uname);
+
+		cnt=0;
+		while(!check_uname(a.uname,&cnt)){
+
+    		printf("The user name is not present. please try again. press esc for main menu\n");
+    		cnt=0;
+
+    		if(getch()==27){
+    		return 0;
+			}
+
+    		gets(a.uname);
+		}
+
+ 		FILE *fnew = fopen("login_info.bin","rb");
+ 		if(fnew == NULL){
+ 			printf("file not opened\n");
+ 			exit(0);
+		}
+
+		int offset = (cnt)*sizeof(struct log_info);
+
+		fseek(fnew,offset,SEEK_SET);
+		fread(&a,sizeof(struct log_info),1,fnew);
+
+		fclose(fnew);
+
+   		printf("\nEnter your password : ");
+   		fflush(stdin);
+		gets(b.pass);
+		encrypt_pass(b.pass);
+		
+		while(strcmp(b.pass,a.pass)){
+
+			printf("\nYour password is incorrect. Enter your password again. you have %d tries: ",3-pass_cnt);
+			gets(b.pass);
+			encrypt_pass(b.pass);
+
+			pass_cnt++;
+			if(pass_cnt==3){
+				printf("You have no tries left\n");
+				sleep(2);
+				return 0;
+			}
+		}
+
+		printf("\n\nlogin successful !\n");
+
+        sleep(2);
+
+	strcpy(user->uname,a.uname);
+    strcpy(user->name,a.name);
+    strcpy(user->pass,a.pass);
+    user->lev=a.lev;	
+
+		return 1;
+
+ 	break;
+    
+case 2:
+    
+    printf("\t\t\tGame Ended !\n\nYour score is %d \n\n- Come back and signup to rank in the world\n",control1a());
+    exit(0);
+
+break;
+
+case 3:
+  exit(0);
+break;
+
+default: 
+
+    puts("Kindly enter according to the instructions");
+    exit(0);
+
+break;
+
+	}
+
+    
+}
+
+
+int check_uname(char *str,int * cnt){
+
+    struct log_info var; 
+    FILE *search=fopen("login_info.bin","rb");
+
+    if(search==NULL){
+        printf("The File does not exist\n");
+        exit(0);
+    }
+
+    if(search== NULL) {
+        printf("Error Exist\n");
+        exit(0);
+        }
+        rewind(search);
+    while(!(feof(search))){
+        if(fread(&var,sizeof(struct log_info),1,search) == NULL)continue;
+        if(strcmp(var.uname,str)==0){
+            fclose(search);
+            return 1;
+		}
+		(*(cnt))++;
+    }
+    fclose(search);
+    return 0;
+
+}
+
+void update_record(struct log_info *user){
+
+    FILE *fchange=fopen("login_info.bin","rb");
+    FILE *ftemp=fopen("temp.bin","wb");
+
+    if(fchange==NULL){
+        printf("File login_info.bin cannot be opened\n");
+        exit(0);
+    }
+
+    if(fchange==NULL){
+        printf("The temporary file cannot be opened cannot be opened\n");
+        exit(0);
+    }
+
+    while(!feof(fchange)){
+
+      if(fread(&a,sizeof(struct log_info),1,fchange)==NULL)continue;
+
+      if(strcmp(a.uname,user->uname)==0){
+      fwrite(user,sizeof(struct log_info),1,ftemp);
+      continue;
+      }
+
+      fwrite(&a,sizeof(struct log_info),1,ftemp);
+      }
+
+      fclose(fchange);
+      fclose(ftemp);
+
+    remove("login_info.bin");
+    rename("temp.bin","login_info.bin");
+
+}
+
+void delete_rec(struct log_info *user){
+    
+    FILE *del=fopen("login_info.bin","rb");
+    if(del==NULL){
+        printf("The file does not exist\n");
+        exit(0);
+    }
+
+    FILE *tem=fopen("temp.bin","wb");
+    if(tem==NULL){
+        printf("The file does not exist\n");
+        exit(0);
+    }
+    
+    while(!feof(del)){
+
+        if(fread(&a,sizeof(struct log_info),1,del) == NULL) continue;
+        if(strcmp(a.uname,user->uname)==0)continue;
+        
+        fwrite(&a,sizeof(struct log_info),1,tem);
+    }
+    
+    fclose(del);
+    fclose(tem);
+
+    remove("login_info.bin");
+    rename("temp.bin","login_info.bin");
+
+    printf("\n-> The Record Has been deleted\n");
+    sleep(3);
+
+    fflush(stdin);
+
+    main();
 }
